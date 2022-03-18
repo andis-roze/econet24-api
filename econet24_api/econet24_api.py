@@ -113,3 +113,11 @@ class HistoryMixin:
 
 class Econet24API(Econet24APIBase, HistoryMixin):
     pass
+
+
+if __name__ == "__main__":
+    from getpass import getpass
+
+    api = Econet24API()
+    api.login(username=input("Username: "), password=getpass(prompt="Password: "))
+    print(api.get_user_devices())
