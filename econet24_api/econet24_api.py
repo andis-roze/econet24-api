@@ -42,19 +42,14 @@ class Econet24APIBase:
         )
 
         self._assert_session_cookie()
-        self.user_devices = self.get_user_devices().get("devices", [[]])[0]
+        self.user_devices = self.get_user_devices().get("devices", [[]])
 
         return response
 
     def get_user_devices(self):
         self._assert_session_cookie()
 
-        response = self._get(
-            "/service/getUserDevices",
-            params={
-                "_": int(1000 * datetime.now().timestamp()),
-            }
-        )
+        response = self._get("/service/getUserDevices")
         data = response.json()
 
         return data
