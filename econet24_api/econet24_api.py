@@ -3,6 +3,10 @@ from datetime import datetime, timedelta
 from typing import List, Optional
 
 
+class LoginFailed(Exception):
+    pass
+
+
 class Econet24APIBase:
     API_ROOT = "https://www.econet24.com"
     session: requests.Session = None
@@ -12,11 +16,15 @@ class Econet24APIBase:
         self.session = requests.session()
 
     def _assert_csrftoken_cookie(self):
-        assert len(self.session.cookies) > 0
+        if not len(self.session.cookies) > 0:
+            raise LoginFailed
+
         assert isinstance(self.session.cookies.get("csrftoken"), str)
 
     def _assert_session_cookie(self):
-        assert len(self.session.cookies) > 0
+        if not len(self.session.cookies) > 0:
+            raise LoginFailed
+
         assert isinstance(self.session.cookies.get("sessionid"), str)
 
     def _get(self, path, **kwargs) -> requests.Response:
@@ -58,7 +66,8 @@ class Econet24APIBase:
 class HistoryMixin:
     def data_history(self, start: datetime, end: datetime, uid: str=None) -> Optional[dict]:
         self._assert_session_cookie()
-        assert uid or len(self.user_devices) > 0
+        if not uid and not len(self.user_devices) > 0:
+            raise LoginFailed
 
         response = self._get(
             "/service/getHistoryParamsValues",
