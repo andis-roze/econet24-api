@@ -123,11 +123,3 @@ class Econet24History(Econet24APIBase):
         ) - timedelta(days=1)
         start = datetime(year=end.year, month=end.month, day=1, hour=0, minute=0, second=0, microsecond=0)
         return self.data_history(start=start, end=end)
-
-
-if __name__ == "__main__":
-    from getpass import getpass
-
-    api = Econet24APIBase()
-    api.login(username=input("Username: "), password=getpass(prompt="Password: "))
-    print(api.get_user_devices())
