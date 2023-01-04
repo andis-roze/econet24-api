@@ -19,13 +19,15 @@ class Econet24APIBase:
         if not len(self.session.cookies) > 0:
             raise LoginFailed
 
-        assert isinstance(self.session.cookies.get("csrftoken"), str)
+        if not isinstance(self.session.cookies.get("csrftoken"), str):
+            raise LoginFailed
 
     def _assert_session_cookie(self):
         if not len(self.session.cookies) > 0:
             raise LoginFailed
 
-        assert isinstance(self.session.cookies.get("sessionid"), str)
+        if not isinstance(self.session.cookies.get("sessionid"), str):
+            raise LoginFailed
 
     def _get(self, path, **kwargs) -> requests.Response:
         response = self.session.get(f"{self.API_ROOT}{path}", **kwargs)
@@ -49,10 +51,19 @@ class Econet24APIBase:
             },
         )
 
+        # TODO: Check response status
         self._assert_session_cookie()
-        self.user_devices = self.get_user_devices().get("devices", [[]])
+        self.user_devices = self.get_user_devices()
 
         return response
+
+    def get_devices(self):
+        self._assert_session_cookie()
+
+        response = self._get("/service/getDevices")
+        data = response.json()
+
+        return data
 
     def get_user_devices(self):
         self._assert_session_cookie()
@@ -60,7 +71,7 @@ class Econet24APIBase:
         response = self._get("/service/getUserDevices")
         data = response.json()
 
-        return data
+        return data.get("devices", [])
 
 
 class Econet24History(Econet24APIBase):
